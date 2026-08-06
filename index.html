@@ -1044,7 +1044,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js')
+    navigator.serviceWorker.register('sw.js?v=2')
       .then(function(registration) {
         console.log('SW registered: ', registration.scope);
       })
