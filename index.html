@@ -866,7 +866,35 @@ function renderPurchasesTable(){
   const purchases=Store.get('purchases');
   document.getElementById('purchasesTable').innerHTML=purchases.map(p=>`<tr><td>${p.date}</td><td>${p.productName}</td><td>${p.qty}</td><td>${fmt(p.price)}</td><td style="font-weight:800;color:var(--primary-light)">${fmt(p.total)}</td><td>${p.supplierName||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="deletePurchase('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">لا يوجد مشتريات</td></tr>';
 }
-function deletePurchase(id){if(!confirm('حذف؟'))return;Store.delete('purchases',id);showToast('🗑️ تم الحذف');renderPurchasesTable();}
+function deletePurchase(id){
+  if(!confirm('حذف عملية الشراء؟ سيتم خصم الكمية من المخزون.'))return;
+
+  // جلب بيانات عملية الشراء قبل الحذف
+  const purchases=Store.get('purchases');
+  const purchase=purchases.find(p=>p.id===id);
+  if(!purchase){showToast('❌ العملية غير موجودة','error');return;}
+
+  // جلب بيانات المنتج
+  const products=Store.get('products');
+  const product=products.find(p=>p.id===purchase.productId);
+  if(!product){Store.delete('purchases',id);showToast('🗑️ تم الحذف');renderPurchasesTable();return;}
+
+  // حساب الكمية الجديدة بعد الخصم
+  const newQty=(product.qty||0)-(purchase.qty||0);
+
+  if(newQty<0){
+    if(!confirm('⚠️ الكمية في المخزون أقل من الكمية المشتراة! سيتم جعل الكمية صفر. متأكد؟'))return;
+  }
+
+  // تحديث المخزون
+  Store.update('products',purchase.productId,{qty:Math.max(0,newQty)});
+
+  // حذف من سجل المشتريات
+  Store.delete('purchases',id);
+
+  showToast('🗑️ تم الحذف وتحديث المخزون');
+  renderPurchasesTable();
+}
 
 // ==================== المصروفات ====================
 function renderExpensesPage(container){
