@@ -4,13 +4,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f172a">
-<title>كنوز الطبيعة - POS Pro</title>
+<title>كنوز الطبيعة - نظام إدارة المبيعات</title>
+
+<!-- رابط ملف المانفيست -->
+<link rel="manifest" href="manifest.json">
+
+<!-- أيقونات التطبيق للمتصفح والموبايل -->
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- لون شريط المتصفح العلوي في الموبايل -->
+<meta name="theme-color" content="#1B5E20">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--primary:#6366f1;--primary-dark:#4f46e5;--primary-light:#818cf8;--accent:#f59e0b;--accent-light:#fbbf24;--danger:#ef4444;--danger-light:#fca5a5;--success:#10b981;--success-light:#6ee7b7;--info:#0ea5e9;--info-light:#7dd3fc;--warning:#f97316;--bg:#0f172a;--bg-card:#1e293b;--bg-elevated:#334155;--bg-input:#1e293b;--text:#f1f5f9;--text-light:#94a3b8;--text-muted:#64748b;--border:#334155;--border-light:#475569;--shadow:0 4px 20px rgba(0,0,0,0.4);--shadow-lg:0 10px 40px rgba(0,0,0,0.5);--shadow-glow:0 0 30px rgba(99,102,241,0.15);--radius:16px;--radius-sm:10px;--radius-lg:24px}
+:root{--primary:#1e293b;--primary-dark:#0f172a;--primary-light:#818cf8;--accent:#2563eb;--accent-light:#fbbf24;--danger:#ef4444;--danger-light:#fca5a5;--success:#10b981;--success-light:#6ee7b7;--info:#0ea5e9;--info-light:#7dd3fc;--warning:#f59e0b;--bg:#f8fafc;--bg-card:#ffffff;--bg-elevated:#334155;--bg-input:#1e293b;--text:#0f172a;--text-light:#64748b;--text-muted:#64748b;--border:#334155;--border-light:#475569;--shadow:0 4px 20px rgba(0,0,0,0.4);--shadow-lg:0 10px 40px rgba(0,0,0,0.5);--shadow-glow:0 0 30px rgba(99,102,241,0.15);--radius:16px;--radius-sm:10px;--radius-lg:24px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Tajawal','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden}
 #loading-screen{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;transition:opacity 0.6s ease}
@@ -227,6 +237,60 @@ tr:hover td{background:rgba(99,102,241,0.05)}
 .offer-card .offer-title{font-weight:800;font-size:1rem;color:var(--text);margin-bottom:8px}
 .offer-card .offer-details{font-size:0.85rem;color:var(--text-light);margin-bottom:8px}
 .offer-card .offer-discount{background:linear-gradient(135deg,var(--danger),var(--warning));color:white;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:800;display:inline-block}
+/* شبكة المنتجات - نظام Micro POS */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* كروت متراصة تلقائياً */
+  gap: 10px;
+  padding: 10px;
+}
+
+/* كارت المنتج */
+.pos-product-card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
+  user-select: none;
+}
+
+/* تأثير الضغط باللمس */
+.pos-product-card:active {
+  transform: scale(0.95);
+  background-color: #f1f5f9;
+}
+
+/* أيقونة أو صورة المنتج */
+.pos-product-card .icon {
+  font-size: 1.8rem;
+  color: var(--primary, #1e293b);
+  margin-bottom: 6px;
+}
+
+/* اسم المنتج */
+.pos-product-card .name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+/* سعر المنتج */
+.pos-product-card .price {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--success, #10b981);
+}
+
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -740,9 +804,14 @@ function addPurchase(){
   const products=Store.get('products');
   const product=products.find(p=>p.id===pid);if(!product)return;
 
-  // ✅ إصلاح: تحديث الكمية فقط + تحديث سعر الشراء (purchase) بدون المساس بسعر الجملة
-  const newQty=(product.qty||0)+qty;
-  Store.update('products',pid,{qty:newQty,purchase:price});
+  // تصحيح: حساب متوسط التكلفة (Weighted Average) للحصول على ربح دقيق
+  const oldQty = product.qty || 0;
+  const oldPurchasePrice = product.purchase || 0;
+  const totalNewQty = oldQty + qty;
+  // إذا كانت الكمية الإجمالية أكبر من صفر، احسب المتوسط، وإلا استخدم السعر الجديد
+  const avgPurchasePrice = totalNewQty > 0 ? ((oldQty * oldPurchasePrice) + (qty * price)) / totalNewQty : price;
+
+  Store.update('products',pid,{qty:totalNewQty,purchase:avgPurchasePrice});
 
   const supplierId=document.getElementById('purSupplier').value;
   const supplierName=supplierId?(Store.get('suppliers').find(s=>s.id===supplierId)?.name||''):'';
@@ -763,6 +832,7 @@ function addPurchase(){
   document.getElementById('purPrice').value='';
   document.getElementById('purNote').value='';
   renderPurchasesPage(document.getElementById('contentArea'));
+}
 }
 function renderPurchasesTable(){
   const purchases=Store.get('purchases');
@@ -1138,7 +1208,6 @@ function loadSummary(){
   const mPurchases=purchases.filter(p=>inMonth(p.date));
   const mExpenses=expenses.filter(e=>inMonth(e.date));
   const mWithdrawals=withdrawals.filter(w=>inMonth(w.date));
-  const mDebts=debts.filter(d=>inMonth(d.date));
 
   const totalSales=mSales.reduce((sum,s)=>sum+(s.total||0),0);
   const totalProfit=mSales.reduce((sum,s)=>sum+(s.profit||0),0);
@@ -1147,19 +1216,18 @@ function loadSummary(){
   const totalWithdrawals=mWithdrawals.reduce((sum,w)=>sum+(w.amount||0),0);
   const totalDiscounts=mSales.reduce((sum,s)=>sum+((s.price*s.qty)-(s.total||0)),0);
 
-  const debtsOnUs=mDebts.filter(d=>d.type==='علينا'&&!d.paid).reduce((sum,d)=>sum+(d.amount||0),0);
-  const debtsForUs=mDebts.filter(d=>d.type==='لنا'&&!d.paid).reduce((sum,d)=>sum+(d.amount||0),0);
+  // تصحيح: الديون يجب أن تحسب من السجل الكامل (debts) وليس شهر الملخص فقط لمعرفة المديونية الحقيقية الحالية
+  const debtsOnUs=debts.filter(d=>d.type==='علينا'&&!d.paid).reduce((sum,d)=>sum+(d.amount||0),0);
+  const debtsForUs=debts.filter(d=>d.type==='لنا'&&!d.paid).reduce((sum,d)=>sum+(d.amount||0),0);
   const netDebts=debtsForUs-debtsOnUs;
 
-  // ✅ إصلاح: قيمة المخزون = الكمية × سعر الشراء (purchase) وليس الجملة
   const inventoryValue=products.reduce((sum,p)=>sum+((p.qty||0)*(p.purchase||0)),0);
 
-  // ✅ إصلاح: رأس المال = رأس المال الافتتاحي (إذا كان موجوداً) وإلا يُحسب من المشتريات + المخزون
   const initialCapital=currentUser?.capital||0;
   const capital=initialCapital>0?initialCapital:totalPurchases+inventoryValue;
 
-  // ✅ إصلاح: صافي الربح = إجمالي الربح من المبيعات - المصروفات - السحوبات
-  const netProfit=totalProfit-totalExpenses-totalWithdrawals;
+  // تصحيح: السحوبات (totalWithdrawals) لا تخصم من صافي الربح، بل من رأس المال فقط
+  const netProfit=totalProfit-totalExpenses;
 
   document.getElementById('sumCapital').textContent=fmt(capital);
   document.getElementById('sumInventory').textContent=fmt(inventoryValue);
@@ -1167,10 +1235,13 @@ function loadSummary(){
   document.getElementById('sumPurchases').textContent=fmt(totalPurchases);
   document.getElementById('sumExpenses').textContent=fmt(totalExpenses);
   document.getElementById('sumWithdrawals').textContent=fmt(totalWithdrawals);
+  
   document.getElementById('sumDebts').textContent=fmt(netDebts);
   document.getElementById('sumDebts').style.color=netDebts>=0?'var(--success-light)':'var(--danger-light)';
+  
   document.getElementById('sumTotalProfit').textContent=fmt(totalProfit);
   document.getElementById('sumTotalProfit').style.color=totalProfit>=0?'var(--success-light)':'var(--danger-light)';
+  
   document.getElementById('sumNetProfit').textContent=fmt(netProfit);
   document.getElementById('sumNetProfit').style.color=netProfit>=0?'#fbbf24':'#f87171';
 
@@ -1190,6 +1261,7 @@ function loadSummary(){
   mSales.filter(s=>s.customerName).forEach(s=>{cs[s.customerName]=(cs[s.customerName]||0)+(s.total||0)});
   const topC=Object.entries(cs).sort((a,b)=>b[1]-a[1])[0];
   document.getElementById('sumTopCustomer').textContent=topC?topC[0]+' ('+fmt(topC[1])+')':'-';
+}
 }
 
 // ==================== التقارير (مُحسّن) ====================
@@ -1313,6 +1385,29 @@ function clearAllData(){
   if(!confirm('تأكيد نهائي: مسح كل البيانات؟'))return;
   Store.clear();showToast('🗑️ تم المسح');navigateTo('dashboard');
 }
+// دالة عرض شبكة المنتجات في شاشة البيع
+function renderProductsGrid() {
+  const products = Store.getProducts() || []; // جلب المنتجات من التخزين
+  
+  if (products.length === 0) {
+    return `<div style="text-align:center; padding:20px; color:var(--text-light)">لا توجد منتجات مسجلة</div>`;
+  }
+
+  let html = '<div class="products-grid">';
+  
+  products.forEach(product => {
+    html += `
+      <div class="pos-product-card" onclick="addToCart('${product.id}')">
+        <div class="icon"><i class="fas fa-box"></i></div>
+        <div class="name">${product.name}</div>
+        <div class="price">${fmt(product.price)}</div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+  return html;
+}
 
 // ==================== الأدوات المساعدة ====================
 function openModal(content){
@@ -1343,6 +1438,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(user){currentUser=user;showApp();}
     else{showAuthScreen();}
   },1500);
+  
 });
 </script>
 <script>
