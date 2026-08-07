@@ -796,7 +796,7 @@ function renderPurchasesPage(container){
   </div>`;
   renderPurchasesTable();
 }
-function addPurchase(){
+function addPurchase()
   const pid=document.getElementById('purProduct').value;
   const qty=parseFloat(document.getElementById('purQty').value)||0;
   const price=parseFloat(document.getElementById('purPrice').value)||0;
@@ -1192,7 +1192,7 @@ function renderSummaryPage(container){
   loadSummary();
 }
 
-function loadSummary(){
+function loadSummary()
   const month=document.getElementById('summaryMonth')?.value||today().slice(0,7);
   const sales=Store.get('sales');
   const purchases=Store.get('purchases');
