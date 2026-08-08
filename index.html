@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>كنوز الطبيعة - نظام إدارة المبيعات</title>
+<title>كنوز&nbsp;الطبيعة - نظام إدارة المبيعات</title>
 
 <!-- رابط ملف المانفيست -->
 <link rel="manifest" href="manifest.json">
@@ -148,11 +148,21 @@ body{font-family:'Tajawal','Segoe UI',sans-serif;background:var(--bg);color:var(
 .btn-sm{padding:8px 14px;font-size:0.8rem}
 .btn-block{width:100%}
 .btn:disabled{opacity:0.5;transform:none}
-.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:0.88rem}
-th,td{padding:12px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
-th{background:var(--bg-elevated);font-weight:800;color:var(--primary-light);font-size:0.78rem}
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:0.88rem;table-layout:auto}
+th,td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;vertical-align:middle}
+th{background:var(--bg-elevated);font-weight:800;color:var(--primary-light);font-size:0.75rem}
 tr:hover td{background:rgba(99,102,241,0.05)}
+.td-customer{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-product{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-date{min-width:90px}
+.td-type{min-width:60px}
+.td-qty{min-width:50px}
+.td-price{min-width:80px}
+.td-total{min-width:90px}
+.td-profit{min-width:80px}
+.td-action{min-width:50px;text-align:center}
+@media(max-width:600px){th,td{padding:8px 5px;font-size:0.8rem}.td-customer{max-width:80px}.td-product{max-width:100px}}
 .badge{padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;display:inline-block}
 .badge-cheese{background:rgba(245,158,11,0.15);color:var(--accent-light);border:1px solid rgba(245,158,11,0.2)}
 .badge-frozen{background:rgba(14,165,233,0.15);color:var(--info-light);border:1px solid rgba(14,165,233,0.2)}
@@ -325,14 +335,14 @@ tr:hover td{background:rgba(99,102,241,0.05)}
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="كنوز الطبيعة POS Pro">
-<meta name="application-name" content="كنوز الطبيعة POS Pro">
+<meta name="apple-mobile-web-app-title" content="كنوز&nbsp;الطبيعة POS Pro">
+<meta name="application-name" content="كنوز&nbsp;الطبيعة POS Pro">
 <meta name="msapplication-TileColor" content="#0a0a0a">
 </head>
 <body>
 <div id="loading-screen">
   <div class="loading-logo">🧀</div>
-  <div class="loading-text">كنوز الطبيعة</div>
+  <div class="loading-text">كنوز&nbsp;الطبيعة</div>
   <div class="loading-subtext">نظام نقاط البيع الذكي - Pro</div>
   <div class="loading-bar"><div class="loading-bar-inner"></div></div>
 </div>
@@ -340,7 +350,7 @@ tr:hover td{background:rgba(99,102,241,0.05)}
   <div class="auth-card">
     <div class="auth-logo">
       <div class="icon">🧀</div>
-      <h1>كنوز الطبيعة</h1>
+      <h1>كنوز&nbsp;الطبيعة</h1>
       <p>نظام إدارة متكامل للمبيعات والمشتريات</p>
     </div>
     <div class="auth-tabs">
@@ -367,7 +377,7 @@ tr:hover td{background:rgba(99,102,241,0.05)}
   <header class="app-header">
     <h1>
       <div class="logo-icon">🧀</div>
-      <div class="logo-text">كنوزالطبيعة<small>نظام نقاط البيع المتكامل Pro</small></div>
+      <div class="logo-text">كنوز&nbsp;الطبيعة<small>نظام نقاط البيع المتكامل Pro</small></div>
     </h1>
     <div class="user-info">
       <span id="userName" style="font-size:0.85rem;color:var(--text-light)"></span>
@@ -682,10 +692,13 @@ function saveProductEdit(id){
 // ==================== المبيعات ====================
 function renderSalesPage(container){
   const products=Store.get('products');
-  window.saleProducts=products;
+  window.saleProducts=products;window.saleCustomers=customers;
   const opts=products.map(p=>`<option value="${p.id}" data-purchase="${p.purchase||0}" data-wholesale="${p.wholesale||0}" data-retail="${p.retail||0}" data-qty="${p.qty}">${p.name} (${p.qty} ${p.unit})</option>`).join('');
   const customers=Store.get('customers');
-  const customerOpts=customers.map(c=>`<option value="${c.id}">${c.name} (${c.phone||''})</option>`).join('');
+  const customerOpts=customers.map(c=>{
+    const typeIcon=c.type==='wholesale'?'📦':'🛍️';
+    return `<option value="${c.id}" data-type="${c.type||'retail'}">${typeIcon} ${c.name} (${c.phone||''})</option>`;
+  }).join('');
 
   container.innerHTML=`<div class="fade-in">
     <div class="card"><div class="card-title"><i class="fas fa-shopping-cart"></i> تسجيل مبيعات</div>
@@ -693,7 +706,8 @@ function renderSalesPage(container){
         <div class="form-group"><label><i class="fas fa-calendar" style="margin-left:4px;color:var(--primary)"></i> التاريخ</label><input type="date" id="sDate" value="${today()}"></div>
         <div class="form-group"><label><i class="fas fa-box" style="margin-left:4px;color:var(--primary)"></i> الصنف</label><select id="sProduct" onchange="updateSalePrice()">${opts}</select></div>
         <div class="form-group"><label><i class="fas fa-tag" style="margin-left:4px;color:var(--accent)"></i> نوع البيع</label><select id="sType" onchange="updateSalePrice()"><option value="retail">🛍️ قطاعي</option><option value="wholesale">📦 جملة</option></select></div>
-        <div class="form-group"><label><i class="fas fa-user" style="margin-left:4px;color:var(--primary)"></i> العميل (اختياري)</label><select id="sCustomer"><option value="">عميل عادي</option>${customerOpts}</select></div>
+        <div class="form-group"><label><i class="fas fa-user" style="margin-left:4px;color:var(--primary)"></i> العميل (اختياري)</label><select id="sCustomer" onchange="showSelectedCustomer()"><option value="">عميل عادي</option>${customerOpts}</select><div id="selectedCustomerDisplay" style="margin-top:6px;font-size:0.8rem;color:var(--accent);font-weight:700;display:none"></div></div>
+        <div class="form-group"><label><i class="fas fa-filter" style="margin-left:4px;color:var(--info)"></i> تصفية العملاء</label><select id="sCustomerFilter" onchange="filterCustomersByType()"><option value="all">الكل</option><option value="retail">🛍️ قطاعي فقط</option><option value="wholesale">📦 جملة فقط</option></select></div>
         <div class="form-group"><label><i class="fas fa-sort-numeric-up" style="margin-left:4px;color:var(--primary)"></i> الكمية</label><input type="number" id="sQty" placeholder="0" step="0.01" oninput="calcSaleProfit()"></div>
         <div class="form-group"><label><i class="fas fa-money-bill-wave" style="margin-left:4px;color:var(--success)"></i> سعر البيع</label><input type="number" id="sPrice" placeholder="0.00" step="0.01" oninput="calcSaleProfit()"></div>
         <div class="form-group"><label><i class="fas fa-percent" style="margin-left:4px;color:var(--accent)"></i> خصم (%)</label><input type="number" id="sDiscount" placeholder="0" step="0.1" min="0" max="100" oninput="calcSaleProfit()"></div>
@@ -705,7 +719,7 @@ function renderSalesPage(container){
     </div>
     <div class="card"><div class="card-title"><i class="fas fa-history"></i> سجل المبيعات</div>
       <div class="search-box"><input type="date" id="saleFilterDate" onchange="renderSalesTable()"><input type="text" id="saleSearch" placeholder="🔍 ابحث..." oninput="renderSalesTable()"></div>
-      <div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>الصنف</th><th>العميل</th><th>النوع</th><th>الكمية</th><th>السعر</th><th>الخصم</th><th>الإجمالي</th><th>المكسب</th><th>إجراء</th></tr></thead><tbody id="salesTable"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th class="td-date">التاريخ</th><th class="td-product">الصنف</th><th class="td-customer">العميل</th><th class="td-type">النوع</th><th class="td-qty">الكمية</th><th class="td-price">السعر</th><th class="td-price">الخصم</th><th class="td-total">الإجمالي</th><th class="td-profit">المكسب</th><th class="td-action">إجراء</th></tr></thead><tbody id="salesTable"></tbody></table></div>
     </div>
   </div>`;
   if(products.length>0)updateSalePrice();
@@ -732,6 +746,32 @@ function calcSaleProfit(){
   profitEl.value=profit.toFixed(2);
   profitEl.style.color=profit>=0?'var(--success-light)':'var(--danger-light)';
 }
+function showSelectedCustomer(){
+  const cid=document.getElementById('sCustomer').value;
+  const display=document.getElementById('selectedCustomerDisplay');
+  if(cid){
+    const customer=(window.saleCustomers||Store.get('customers')).find(c=>c.id===cid);
+    if(customer){
+      display.innerHTML='👤 <span style="color:var(--primary-light)">'+customer.name+'</span> | ⭐ '+(customer.points||0)+' نقطة | 💰 إجمالي: '+fmt(customer.totalSpent||0);
+      display.style.display='block';
+    }
+  }else{
+    display.style.display='none';
+  }
+function filterCustomersByType(){
+  const filter=document.getElementById('sCustomerFilter')?.value||'all';
+  const select=document.getElementById('sCustomer');
+  if(!select)return;
+  const options=select.querySelectorAll('option');
+  options.forEach(opt=>{
+    if(opt.value===''){opt.style.display='';return;}
+    const type=opt.dataset.type||'retail';
+    opt.style.display=(filter==='all'||filter===type)?'':'none';
+  });
+}
+
+}
+
 function addSale(){
   const pid=document.getElementById('sProduct').value;
   const qty=parseFloat(document.getElementById('sQty').value)||0;
@@ -792,8 +832,114 @@ function renderSalesTable(){
   const fd=document.getElementById('saleFilterDate')?.value||'';
   const fs=document.getElementById('saleSearch')?.value.toLowerCase()||'';
   const filtered=sales.filter(s=>(!fd||s.date===fd)&&((s.productName||'').toLowerCase().includes(fs)||(s.note||'').toLowerCase().includes(fs)||(s.customerName||'').toLowerCase().includes(fs)));
-  document.getElementById('salesTable').innerHTML=filtered.map(s=>`<tr><td>${s.date}</td><td>${s.productName}</td><td>${s.customerName||'-'}</td><td><span class="badge badge-${s.type}">${s.type==='retail'?'قطاعي':'جملة'}</span></td><td>${s.qty}</td><td>${fmt(s.price)}</td><td>${s.discount>0?s.discount+'%':'-'}</td><td style="font-weight:800;color:var(--primary-light)">${fmt(s.total)}</td><td style="color:var(--success-light);font-weight:800">${fmt(s.profit)}</td><td><button class="btn btn-sm btn-danger" onclick="deleteSale('${s.id}','${s.productId}',${s.qty})"><i class="fas fa-trash"></i></button></td></tr>`).join('')||'<tr><td colspan="10" class="empty">لا يوجد مبيعات</td></tr>';
+  document.getElementById('salesTable').innerHTML=filtered.map(s=>`<tr>
+    <td class="td-date">${s.date}</td>
+    <td class="td-product" title="${s.productName||''}">${s.productName||'-'}</td>
+    <td class="td-customer" title="${s.customerName||''}">${s.customerName||'-'}</td>
+    <td class="td-type"><span class="badge badge-${s.type}">${s.type==='retail'?'قطاعي':'جملة'}</span></td>
+    <td class="td-qty">${s.qty}</td>
+    <td class="td-price">${fmt(s.price)}</td>
+    <td class="td-price">${s.discount>0?s.discount+'%':'-'}</td>
+    <td class="td-total" style="font-weight:800;color:var(--primary-light)">${fmt(s.total)}</td>
+    <td class="td-profit" style="color:var(--success-light);font-weight:800">${fmt(s.profit)}</td>
+    <td class="td-action"><button class="btn btn-sm btn-primary" onclick="editSale('${s.id}')" style="margin-left:4px"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="deleteSale('${s.id}','${s.productId}',${s.qty})"><i class="fas fa-trash"></i></button></td>
+  </tr>`).join('')||'<tr><td colspan="10" class="empty">لا يوجد مبيعات</td></tr>';
 }
+function editSale(id){
+  const sales=Store.get('sales');
+  const sale=sales.find(s=>s.id===id);
+  if(!sale)return;
+  const products=Store.get('products');
+  const customers=Store.get('customers');
+  const productOpts=products.map(p=>`<option value="${p.id}" ${p.id===sale.productId?'selected':''}>${p.name} (${p.qty} ${p.unit})</option>`).join('');
+  const customerOpts=customers.map(c=>`<option value="${c.id}" ${c.id===sale.customerId?'selected':''}>${c.name} (${c.phone||''})</option>`).join('');
+
+  openModal(`<div class="modal-header"><h2><i class="fas fa-edit" style="color:var(--primary);margin-left:8px"></i> تعديل عملية البيع</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="form-grid">
+      <div class="form-group"><label>التاريخ</label><input type="date" id="esDate" value="${sale.date}"></div>
+      <div class="form-group"><label>الصنف</label><select id="esProduct" onchange="updateEditSalePrice()">${productOpts}</select></div>
+      <div class="form-group"><label>نوع البيع</label><select id="esType"><option value="retail" ${sale.type==='retail'?'selected':''}>قطاعي</option><option value="wholesale" ${sale.type==='wholesale'?'selected':''}>جملة</option></select></div>
+      <div class="form-group"><label>العميل</label><select id="esCustomer"><option value="">عميل عادي</option>${customerOpts}</select></div>
+      <div class="form-group"><label>الكمية</label><input type="number" id="esQty" value="${sale.qty}" step="0.01"></div>
+      <div class="form-group"><label>سعر البيع</label><input type="number" id="esPrice" value="${sale.price}" step="0.01"></div>
+      <div class="form-group"><label>الخصم (%)</label><input type="number" id="esDiscount" value="${sale.discount||0}" step="0.1" min="0" max="100"></div>
+      <div class="form-group"><label>التكلفة</label><input type="number" id="esCost" value="${sale.cost}" step="0.01" readonly style="background:var(--bg-elevated);color:var(--text-light)"></div>
+      <div class="form-group"><label>الملاحظات</label><input type="text" id="esNote" value="${sale.note||''}"></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="saveSaleEdit('${id}')"><i class="fas fa-save"></i> حفظ التعديلات</button>`);
+
+  // Store original sale data for comparison
+  window._editSaleOriginal = {...sale};
+  updateEditSalePrice();
+}
+
+function updateEditSalePrice(){
+  const select=document.getElementById('esProduct');
+  if(!select)return;
+  const option=select.options[select.selectedIndex];
+  const type=document.getElementById('esType').value;
+  const price=type==='wholesale'?parseFloat(option.dataset.wholesale||0):parseFloat(option.dataset.retail||0);
+  if(price>0)document.getElementById('esPrice').value=price;
+  const cost=parseFloat(option.dataset.purchase||0);
+  document.getElementById('esCost').value=cost||'';
+}
+
+function saveSaleEdit(id){
+  const sales=Store.get('sales');
+  const original=sales.find(s=>s.id===id);
+  if(!original)return;
+
+  const pid=document.getElementById('esProduct').value;
+  const qty=parseFloat(document.getElementById('esQty').value)||0;
+  const price=parseFloat(document.getElementById('esPrice').value)||0;
+  const cost=parseFloat(document.getElementById('esCost').value)||0;
+  const discountPct=parseFloat(document.getElementById('esDiscount').value)||0;
+
+  if(!pid||qty<=0||price<=0)return showToast('أكمل البيانات','warning');
+
+  const product=Store.get('products').find(p=>p.id===pid);
+  if(!product)return;
+
+  // Restore original quantity first
+  if(original.productId){
+    const origProduct=Store.get('products').find(p=>p.id===original.productId);
+    if(origProduct)Store.update('products',original.productId,{qty:(origProduct.qty||0)+original.qty});
+  }
+
+  // Check new quantity availability
+  const currentProduct=Store.get('products').find(p=>p.id===pid);
+  if((currentProduct.qty||0)<qty)return showToast('الكمية غير متوفرة! المتاح: '+currentProduct.qty+' '+currentProduct.unit,'warning');
+
+  // Deduct new quantity
+  Store.update('products',pid,{qty:(currentProduct.qty||0)-qty});
+
+  const discountedPrice=price*(1-discountPct/100);
+  const total=discountedPrice*qty;
+  const profit=(discountedPrice-cost)*qty;
+
+  const customerId=document.getElementById('esCustomer').value;
+  const customerName=customerId?(Store.get('customers').find(c=>c.id===customerId)?.name||''):'';
+
+  Store.update('sales',id,{
+    date:document.getElementById('esDate').value||today(),
+    productId:pid,
+    productName:product.name,
+    customerId:customerId||null,
+    customerName:customerName,
+    type:document.getElementById('esType').value,
+    qty,
+    price,
+    cost,
+    discount:discountPct,
+    discountedPrice,
+    total,
+    profit,
+    note:document.getElementById('esNote').value
+  });
+
+  closeModal();showToast('✅ تم التعديل');renderSalesPage(document.getElementById('contentArea'));
+}
+
 function deleteSale(id,productId,qty){
   if(!confirm('حذف عملية البيع؟'))return;
   if(productId){const p=Store.get('products').find(x=>x.id===productId);if(p)Store.update('products',productId,{qty:(p.qty||0)+qty});}
@@ -864,8 +1010,79 @@ function addPurchase(){
 }
 function renderPurchasesTable(){
   const purchases=Store.get('purchases');
-  document.getElementById('purchasesTable').innerHTML=purchases.map(p=>`<tr><td>${p.date}</td><td>${p.productName}</td><td>${p.qty}</td><td>${fmt(p.price)}</td><td style="font-weight:800;color:var(--primary-light)">${fmt(p.total)}</td><td>${p.supplierName||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="deletePurchase('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">لا يوجد مشتريات</td></tr>';
+  document.getElementById('purchasesTable').innerHTML=purchases.map(p=>`<tr><td>${p.date}</td><td>${p.productName}</td><td>${p.qty}</td><td>${fmt(p.price)}</td><td style="font-weight:800;color:var(--primary-light)">${fmt(p.total)}</td><td>${p.supplierName||'-'}</td><td><button class="btn btn-sm btn-primary" onclick="editPurchase('${p.id}')" style="margin-left:4px"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="deletePurchase('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">لا يوجد مشتريات</td></tr>';
 }
+function editPurchase(id){
+  const purchases=Store.get('purchases');
+  const purchase=purchases.find(p=>p.id===id);
+  if(!purchase)return;
+  const products=Store.get('products');
+  const suppliers=Store.get('suppliers');
+  const productOpts=products.map(p=>`<option value="${p.id}" ${p.id===purchase.productId?'selected':''}>${p.name}</option>`).join('');
+  const supplierOpts=suppliers.map(s=>`<option value="${s.id}" ${s.id===purchase.supplierId?'selected':''}>${s.name}</option>`).join('');
+
+  openModal(`<div class="modal-header"><h2><i class="fas fa-edit" style="color:var(--primary);margin-left:8px"></i> تعديل عملية الشراء</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="form-grid">
+      <div class="form-group"><label>التاريخ</label><input type="date" id="epurDate" value="${purchase.date}"></div>
+      <div class="form-group"><label>الصنف</label><select id="epurProduct">${productOpts}</select></div>
+      <div class="form-group"><label>الكمية</label><input type="number" id="epurQty" value="${purchase.qty}" step="0.01"></div>
+      <div class="form-group"><label>سعر الشراء (للوحدة)</label><input type="number" id="epurPrice" value="${purchase.price}" step="0.01"></div>
+      <div class="form-group"><label>المورد</label><select id="epurSupplier"><option value="">اختر مورد...</option>${supplierOpts}</select></div>
+      <div class="form-group"><label>ملاحظات</label><input type="text" id="epurNote" value="${purchase.note||''}"></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="savePurchaseEdit('${id}')"><i class="fas fa-save"></i> حفظ التعديلات</button>`);
+}
+
+function savePurchaseEdit(id){
+  const purchases=Store.get('purchases');
+  const original=purchases.find(p=>p.id===id);
+  if(!original)return;
+
+  const pid=document.getElementById('epurProduct').value;
+  const qty=parseFloat(document.getElementById('epurQty').value)||0;
+  const price=parseFloat(document.getElementById('epurPrice').value)||0;
+
+  if(!pid||qty<=0||price<=0)return showToast('أكمل البيانات','warning');
+
+  const product=Store.get('products').find(p=>p.id===pid);
+  if(!product)return;
+
+  // Restore original quantity first
+  if(original.productId){
+    const origProduct=Store.get('products').find(p=>p.id===original.productId);
+    if(origProduct){
+      const restoredQty=(origProduct.qty||0)-original.qty;
+      Store.update('products',original.productId,{qty:Math.max(0,restoredQty)});
+    }
+  }
+
+  // Calculate new average purchase price
+  const currentProduct=Store.get('products').find(p=>p.id===pid);
+  const oldQty=currentProduct.qty||0;
+  const oldPurchasePrice=currentProduct.purchase||0;
+  const totalNewQty=oldQty+qty;
+  const avgPurchasePrice=totalNewQty>0?((oldQty*oldPurchasePrice)+(qty*price))/totalNewQty:price;
+
+  Store.update('products',pid,{qty:totalNewQty,purchase:avgPurchasePrice});
+
+  const supplierId=document.getElementById('epurSupplier').value;
+  const supplierName=supplierId?(Store.get('suppliers').find(s=>s.id===supplierId)?.name||''):'';
+
+  Store.update('purchases',id,{
+    date:document.getElementById('epurDate').value||today(),
+    productId:pid,
+    productName:product.name,
+    qty,
+    price,
+    total:price*qty,
+    supplierId:supplierId||null,
+    supplierName:supplierName,
+    note:document.getElementById('epurNote').value
+  });
+
+  closeModal();showToast('✅ تم التعديل');renderPurchasesPage(document.getElementById('contentArea'));
+}
+
 function deletePurchase(id){
   if(!confirm('حذف عملية الشراء؟ سيتم خصم الكمية من المخزون.'))return;
 
@@ -1019,6 +1236,7 @@ function renderCustomersPage(container){
       <div class="form-grid">
         <div class="form-group"><label>الاسم</label><input type="text" id="cName" placeholder="اسم العميل"></div>
         <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="cPhone" placeholder="01xxxxxxxx"></div>
+        <div class="form-group"><label>نوع العميل</label><select id="cType"><option value="retail">🛍️ قطاعي</option><option value="wholesale">📦 جملة</option></select></div>
         <div class="form-group"><label>العنوان</label><input type="text" id="cAddress" placeholder="اختياري"></div>
         <div class="form-group"><label>ملاحظات</label><input type="text" id="cNote" placeholder="اختياري"></div>
       </div>
@@ -1037,6 +1255,7 @@ function addCustomer(){
   Store.add('customers',{
     name,
     phone:document.getElementById('cPhone').value,
+    type:document.getElementById('cType').value,
     address:document.getElementById('cAddress').value,
     note:document.getElementById('cNote').value,
     points:0,
@@ -1052,16 +1271,18 @@ function addCustomer(){
 function filterCustomers(){
   const search=document.getElementById('customerSearch')?.value.toLowerCase()||'';
   const customers=(window.allCustomers||[]).filter(c=>c.name.toLowerCase().includes(search)||(c.phone||'').includes(search));
-  document.getElementById('customersList').innerHTML=customers.map(c=>`
-    <div class="customer-card">
+  document.getElementById('customersList').innerHTML=customers.map(c=>{
+    const typeIcon=c.type==='wholesale'?'📦':'🛍️';
+    const typeLabel=c.type==='wholesale'?'جملة':'قطاعي';
+    return `<div class="customer-card">
       <div class="customer-info">
-        <div class="customer-name">👤 ${c.name}</div>
+        <div class="customer-name">👤 ${c.name} <span style="font-size:0.75rem;background:rgba(99,102,241,0.15);color:var(--primary-light);padding:2px 8px;border-radius:10px;margin-right:6px">${typeIcon} ${typeLabel}</span></div>
         <div class="customer-meta">📞 ${c.phone||'-'} | 📍 ${c.address||'-'} | 💰 إجمالي: ${fmt(c.totalSpent||0)}</div>
       </div>
       <div class="customer-points">⭐ ${c.points||0} نقطة</div>
       <button class="btn btn-sm btn-danger" style="margin-right:10px" onclick="deleteCustomer('${c.id}')"><i class="fas fa-trash"></i></button>
-    </div>
-  `).join('')||'<div class="empty-state"><i class="fas fa-users"></i><p>لا يوجد عملاء مسجلين</p></div>';
+    </div>`;
+  }).join('')||'<div class="empty-state"><i class="fas fa-users"></i><p>لا يوجد عملاء مسجلين</p></div>';
 }
 function deleteCustomer(id){if(!confirm('حذف العميل؟'))return;Store.delete('customers',id);showToast('🗑️ تم الحذف');renderCustomersPage(document.getElementById('contentArea'));}
 
